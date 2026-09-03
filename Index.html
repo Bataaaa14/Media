@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Media Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Premium SaaS/Enterprise CSS Variables */
+    :root {
+      --primary-color: #4f46e5; /* Vibrant Indigo */
+      --primary-hover: #4338ca;
+      --primary-light: #e0e7ff;
+      --bg-color: #f8fafc; /* Cool Slate Light */
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --focus-ring: rgba(79, 70, 229, 0.35);
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      
+      /* Refined Radii */
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      
+      /* Upgraded Smooth Shadows */
+      --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -1px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      --shadow-card-hover: 0 12px 24px -8px rgba(15, 23, 42, 0.15);
+      
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 3rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Accessibility Focus States */
+    *:focus-visible {
+      outline: 3px solid var(--primary-color);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    /* Header & Search */
+    header {
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.75rem;
+      color: var(--text-main);
+    }
+
+    header p {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-size: 1.125rem;
+      font-weight: 400;
+    }
+
+    .search-container {
+      max-width: 540px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 1rem 1.5rem 1rem 3rem;
+      font-size: 1rem;
+      font-family: inherit;
+      border: 1px solid var(--border-color);
+      border-radius: 9999px;
+      background-color: var(--card-bg);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition);
+      color: var(--text-main);
+    }
+
+    .search-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .search-input:hover {
+      border-color: #cbd5e1;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 0 4px var(--focus-ring);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1.25rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      pointer-events: none;
+      transition: color var(--transition);
+    }
+    
+    .search-input:focus ~ .search-icon {
+      color: var(--primary-color);
+    }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
+
+    .filter-chip {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.6rem 1.5rem;
+      border-radius: 9999px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition);
+    }
+
+    .filter-chip:hover {
+      border-color: #cbd5e1;
+      color: var(--text-main);
+      transform: translateY(-1px);
+    }
+
+    .filter-chip[aria-pressed="true"] {
+      background-color: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 12px var(--focus-ring);
+    }
+
+    /* Gallery Grid */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      list-style: none;
+    }
+
+    /* Media Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-card-hover);
+      border-color: #cbd5e1;
+    }
+
+    .card-image-container {
+      position: relative;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      background-color: #f1f5f9;
+    }
+
+    .card-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card:hover .card-image {
+      transform: scale(1.08);
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: all var(--transition);
+    }
+
+    .card:hover .card-overlay,
+    .card:focus-within .card-overlay {
+      opacity: 1;
+    }
+
+    .btn-preview {
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text-main);
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      font-family: inherit;
+      cursor: pointer;
+      transform: translateY(15px) scale(0.95);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn-preview:hover {
+      background: white;
+      color: var(--primary-color);
+      transform: translateY(0) scale(1.05) !important;
+    }
+
+    .card:hover .btn-preview,
+    .card:focus-within .btn-preview {
+      transform: translateY(0) scale(1);
+    }
+
+    .media-badge {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      color: white;
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      z-index: 1;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .card-content {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      font-weight: 500;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: auto;
+    }
+
+    .tag {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      padding: 0.25rem 0.6rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all var(--transition);
+    }
+    
+    .card:hover .tag {
+      border-color: #cbd5e1;
+      color: var(--text-main);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 6rem 2rem;
+      color: var(--text-muted);
+      display: none;
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      border: 1px dashed #cbd5e1;
+    }
+    .empty-state svg {
+      width: 56px;
+      height: 56px;
+      margin-bottom: 1.25rem;
+      color: #cbd5e1;
+    }
+    .empty-state h3 {
+      color: var(--text-main);
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Modal Styles */
+    .modal {
+      border: none;
+      border-radius: var(--radius-lg);
+      padding: 0;
+      margin: auto;
+      max-width: 95vw;
+      width: 1000px;
+      max-height: 90vh;
+      box-shadow: var(--shadow-lg);
+      background: var(--card-bg);
+      color: var(--text-main);
+      opacity: 0;
+      transform: scale(0.98);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .modal[open] {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .modal::backdrop {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .modal[open]::backdrop {
+      opacity: 1;
+    }
+
+    .modal-content-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-height: 90vh;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--card-bg);
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .btn-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+    }
+
+    .btn-close:hover {
+      background: var(--danger-light);
+      color: var(--danger);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    @media (min-width: 768px) {
+      .modal-body {
+        flex-direction: row;
+      }
+    }
+
+    .modal-preview {
+      flex: 1.8;
+      background: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 350px;
+      position: relative;
+    }
+
+    .modal-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      max-height: 70vh;
+    }
+
+    .modal-info {
+      flex: 1;
+      padding: 2rem;
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+      background: var(--card-bg);
+    }
+
+    .info-group h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .info-group p {
+      font-size: 1rem;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      body { padding: 2rem 1rem; }
+      header h1 { font-size: 2rem; }
+      .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+      .modal-info { padding: 1.5rem; border-left: none; border-top: 1px solid var(--border-color); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Media Assets</h1>
+    <p>Browse, search, and manage enterprise media</p>
+    
+    <div class="search-container">
+      <label for="media-search" class="sr-only">Search media</label>
+      <input type="search" id="media-search" class="search-input" placeholder="Search by title or tags...">
+      <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+    </div>
+  </header>
+
+  <nav class="filters" aria-label="Media categories">
+    <button class="filter-chip" data-filter="All" aria-pressed="true">All</button>
+    <button class="filter-chip" data-filter="Image" aria-pressed="false">Images</button>
+    <button class="filter-chip" data-filter="Video" aria-pressed="false">Videos</button>
+    <button class="filter-chip" data-filter="Marketing" aria-pressed="false">Marketing</button>
+    <button class="filter-chip" data-filter="Product" aria-pressed="false">Product</button>
+    <button class="filter-chip" data-filter="Events" aria-pressed="false">Events</button>
+  </nav>
+
+  <main>
+    <div class="empty-state" id="empty-state" aria-live="polite">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+      </svg>
+      <h3>No media found</h3>
+      <p>Try adjusting your search or filters.</p>
+    </div>
+
+    <ul class="gallery-grid" id="gallery-grid" aria-label="Media gallery">
+      </ul>
+  </main>
+
+  <dialog id="preview-modal" class="modal" aria-labelledby="modal-title">
+    <div class="modal-content-wrapper">
+      <header class="modal-header">
+        <h2 id="modal-title" class="modal-title">Media Preview</h2>
+        <button class="btn-close" id="btn-close-modal" aria-label="Close dialog">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </header>
+      <div class="modal-body">
+        <div class="modal-preview">
+          <img id="modal-img" src="" alt="Full screen preview">
+        </div>
+        <div class="modal-info">
+          <div class="info-group">
+            <h4>Description</h4>
+            <p id="modal-desc">Description goes here.</p>
+          </div>
+          <div class="info-group">
+            <h4>File Information</h4>
+            <p id="modal-file-info">JPG • 2.4 MB • 1920x1080</p>
+          </div>
+          <div class="info-group">
+            <h4>Uploaded</h4>
+            <p id="modal-date">Jan 1, 2024</p>
+          </div>
+          <div class="info-group">
+            <h4>Tags</h4>
+            <div class="card-tags" id="modal-tags">
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    // Mock Enterprise Data
+    const mediaData = [
+      { id: 1, title: 'Q3 Campaign Banner', type: 'Image', category: 'Marketing', date: '2023-09-15', tags: ['campaign', 'social', 'banner'], fileInfo: 'PNG • 1.2 MB • 1200x630', desc: 'Main promotional banner for the Q3 enterprise sales push.', url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80' },
+      { id: 2, title: 'Dashboard Overview', type: 'Video', category: 'Product', date: '2023-10-02', tags: ['ui', 'dashboard', 'demo'], fileInfo: 'MP4 • 15.4 MB • 1920x1080', desc: 'Short video snippet demonstrating the new analytics dashboard.', url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80' },
+      { id: 3, title: 'Annual Summit Keynote', type: 'Image', category: 'Events', date: '2023-08-22', tags: ['conference', 'keynote', 'ceo'], fileInfo: 'JPG • 3.1 MB • 2400x1600', desc: 'CEO delivering the keynote address at the 2023 Annual Summit.', url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=800&q=80' },
+      { id: 4, title: 'App Icon Set', type: 'Image', category: 'Product', date: '2023-11-05', tags: ['design', 'icons', 'assets'], fileInfo: 'SVG • 0.5 MB • Vector', desc: 'Updated vector icon set for the mobile application.', url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=800&q=80' },
+      { id: 5, title: 'Email Newsletter Template', type: 'Image', category: 'Marketing', date: '2023-07-11', tags: ['email', 'newsletter', 'brand'], fileInfo: 'HTML/JPG • 2.2 MB • 800x1200', desc: 'Approved template design for weekly customer newsletters.', url: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?auto=format&fit=crop&w=800&q=80' },
+      { id: 6, title: 'Team Building Retreat', type: 'Video', category: 'Events', date: '2023-06-30', tags: ['culture', 'team', 'vlog'], fileInfo: 'MP4 • 120 MB • 4K', desc: 'Highlight reel from the summer engineering team retreat.', url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80' },
+      { id: 7, title: 'API Documentation Cover', type: 'Image', category: 'Product', date: '2023-12-01', tags: ['developer', 'api', 'docs'], fileInfo: 'JPG • 1.8 MB • 1600x900', desc: 'Cover illustration for the v2.0 API documentation portal.', url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80' },
+      { id: 8, title: 'Holiday Promo Ad', type: 'Video', category: 'Marketing', date: '2023-11-20', tags: ['ad', 'holiday', 'social'], fileInfo: 'MP4 • 8.5 MB • 1080x1080', desc: 'Square aspect ratio video ad for Instagram and LinkedIn.', url: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&w=800&q=80' },
+      { id: 9, title: 'New Headquarters', type: 'Image', category: 'Events', date: '2023-05-14', tags: ['office', 'pr', 'news'], fileInfo: 'JPG • 4.5 MB • 3000x2000', desc: 'High-res exterior shot of the new European headquarters.', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80' },
+      { id: 10, title: 'Mobile App Mockup', type: 'Image', category: 'Product', date: '2024-01-10', tags: ['mockup', 'mobile', 'ios'], fileInfo: 'PSD/JPG • 15 MB • 2000x2000', desc: 'Device mockup showing the new dark mode feature.', url: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80' },
+      { id: 11, title: 'B2B Case Study PDF', type: 'Image', category: 'Marketing', date: '2024-01-15', tags: ['print', 'pdf', 'b2b'], fileInfo: 'PDF/PNG • 3.4 MB • A4', desc: 'Thumbnail cover for the Acme Corp successful case study.', url: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80' },
+      { id: 12, title: 'Webinar Recording', type: 'Video', category: 'Events', date: '2024-02-05', tags: ['webinar', 'training', 'sales'], fileInfo: 'MP4 • 350 MB • 1920x1080', desc: 'Full 45-minute recording of the Q1 Partner Training webinar.', url: 'https://images.unsplash.com/photo-1588196749597-9ff046447cff?auto=format&fit=crop&w=800&q=80' },
+    ];
+
+    // DOM Elements
+    const galleryGrid = document.getElementById('gallery-grid');
+    const searchInput = document.getElementById('media-search');
+    const filterChips = document.querySelectorAll('.filter-chip');
+    const emptyState = document.getElementById('empty-state');
+    
+    // Modal Elements
+    const modal = document.getElementById('preview-modal');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalFileInfo = document.getElementById('modal-file-info');
+    const modalDate = document.getElementById('modal-date');
+    const modalTags = document.getElementById('modal-tags');
+
+    // State
+    let currentFilter = 'All';
+    let searchQuery = '';
+
+    // Initialize
+    function init() {
+      renderGallery(mediaData);
+      setupEventListeners();
+    }
+
+    // Format date string
+    const formatDate = (dateStr) => {
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return new Date(dateStr).toLocaleDateString(undefined, options);
+    };
+
+    // Render cards to DOM
+    function renderGallery(data) {
+      galleryGrid.innerHTML = '';
+
+      if (data.length === 0) {
+        galleryGrid.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      galleryGrid.style.display = 'grid';
+      emptyState.style.display = 'none';
+
+      data.forEach(item => {
+        const li = document.createElement('li');
+        
+        // Generate tags HTML
+        const tagsHtml = item.tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
+        
+        li.innerHTML = `
+          <div class="card" aria-label="${item.title}">
+            <div class="card-image-container">
+              <span class="media-badge">${item.type}</span>
+              <img src="${item.url}" alt="${item.title}" class="card-image" loading="lazy">
+              <div class="card-overlay">
+                <button class="btn-preview" aria-label="Preview ${item.title}" data-id="${item.id}">
+                  Preview
+                </button>
+              </div>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">${item.title}</h3>
+              <div class="card-meta">
+                <span>${item.category}</span>
+                <span><time datetime="${item.date}">${formatDate(item.date)}</time></span>
+              </div>
+              <div class="card-tags">
+                ${tagsHtml}
+              </div>
+            </div>
+          </div>
+        `;
+        galleryGrid.appendChild(li);
+      });
+
+      // Attach preview button events after rendering
+      document.querySelectorAll('.btn-preview').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = parseInt(e.target.getAttribute('data-id'));
+          const item = mediaData.find(m => m.id === id);
+          if(item) openModal(item);
+        });
+      });
+    }
+
+    // Filter logic
+    function applyFilters() {
+      let filteredData = mediaData;
+
+      // 1. Apply Search Filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filteredData = filteredData.filter(item => 
+          item.title.toLowerCase().includes(query) ||
+          item.tags.some(tag => tag.toLowerCase().includes(query)) ||
+          item.category.toLowerCase().includes(query)
+        );
+      }
+
+      // 2. Apply Category/Type Filter
+      if (currentFilter !== 'All') {
+        filteredData = filteredData.filter(item => 
+          item.type === currentFilter || item.category === currentFilter
+        );
+      }
+
+      renderGallery(filteredData);
+    }
+
+    // Modal Logic
+    function openModal(item) {
+      modalImg.src = item.url;
+      modalImg.alt = item.title;
+      modalTitle.textContent = item.title;
+      modalDesc.textContent = item.desc;
+      modalFileInfo.textContent = item.fileInfo;
+      modalDate.textContent = formatDate(item.date);
+      modalTags.innerHTML = item.tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
+      
+      modal.showModal();
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    function closeModal() {
+      modal.close();
+    }
+
+    // Event Listeners Setup
+    function setupEventListeners() {
+      // Search Input
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        applyFilters();
+      });
+
+      // Filter Chips
+      filterChips.forEach(chip => {
+        chip.addEventListener('click', (e) => {
+          // Update ARIA states for styling and accessibility
+          filterChips.forEach(c => c.setAttribute('aria-pressed', 'false'));
+          e.target.setAttribute('aria-pressed', 'true');
+          
+          currentFilter = e.target.getAttribute('data-filter');
+          applyFilters();
+        });
+      });
+
+      // Modal Close Listeners
+      
+      // 1. Close via X button
+      btnCloseModal.addEventListener('click', closeModal);
+
+      // 2. Close via clicking outside (Backdrop)
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+      
+      // 3. Native close event handling
+      modal.addEventListener('close', () => {
+        document.body.style.overflow = ''; // Restore background scrolling
+        setTimeout(() => { modalImg.src = ''; }, 300); // Clear image after transition out
+      });
+    }
+
+    // Run app
+    init();
+  </script>
+</body>
+</html>
